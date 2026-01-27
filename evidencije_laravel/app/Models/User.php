@@ -6,18 +6,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable; //HasApiTokens
 
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
-     protected $fillable = [
+    protected $fillable = [
         'ime',
         'prezime',
         'email',
@@ -47,4 +49,30 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function kreiraniZadaci()
+    {
+        return $this->hasMany(Zadatak::class, 'profesor_id');
+    }
+
+    public function upisi()
+    {
+        return $this->hasMany(Upis::class, 'student_id');
+    }
+
+    public function predmeti()
+    {
+        return $this->belongsToMany(Predmet::class, 'upisi', 'student_id', 'predmet_id');
+    }
+
+    public function predaje()
+    {
+        return $this->hasMany(Predaja::class, 'student_id');
+    }
+
+    public function predmetiKojePredaje()
+    {
+        return $this->belongsToMany(Predmet::class, 'predmet_profesor', 'profesor_id', 'predmet_id');
+    }
+
 }
