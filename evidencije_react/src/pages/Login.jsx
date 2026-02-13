@@ -1,16 +1,23 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Card from "../components/Card";
 
 export default function Login() {
+  const { login } = useAuth();
   const nav = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => (document.body.style.overflow = "auto");
+  }, []);
 
   const canSubmit = useMemo(() => {
     const e = email.trim();
@@ -20,7 +27,7 @@ export default function Login() {
     return true;
   }, [email, password]);
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
     setErr("");
 
@@ -30,26 +37,21 @@ export default function Login() {
     }
 
     setBusy(true);
-    setTimeout(() => {
-      const user = { email: email.trim() };
-      localStorage.setItem("demo_user", JSON.stringify(user));
+    try {
+      await login(email.trim(), password);
+      nav("/");
+    } catch (e2) {
+    setErr(e2?.response?.data?.message || e2?.message || "Login nije uspeo");
+    } finally {
       setBusy(false);
-      nav("/"); 
-    }, 700);
+    }
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "grid",
-        placeItems: "center",
-        padding: 16,
-      }}
-    >
+    <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 16 }}>
       <div style={{ width: "min(420px, 100%)" }}>
         <Card>
-          <h2 style={{ marginTop: 0 }}>Login</h2>
+          <h2>Login</h2>
 
           <form onSubmit={onSubmit} style={{ display: "grid", gap: 10 }}>
             <div>
@@ -58,7 +60,6 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="npr. student@test.com"
-                autoComplete="email"
               />
             </div>
 
@@ -69,7 +70,6 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                autoComplete="current-password"
               />
             </div>
 
