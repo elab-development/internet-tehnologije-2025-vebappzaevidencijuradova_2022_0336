@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'plagiarism_api' => [
+        'url' => env('PLAGIARISM_API_URL'),
+        'token' => env('PLAGIARISM_API_TOKEN'),
+    ],
+
 ];
