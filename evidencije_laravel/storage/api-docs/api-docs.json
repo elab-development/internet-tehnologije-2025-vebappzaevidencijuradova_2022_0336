@@ -1,0 +1,1894 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Evidencije API",
+        "description": "API za upravljanje predmetima, zadacima, predajama, upisima, kalendarom rokova i proverama plagijata.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Prijava korisnika (Sanctum token). Vraća Bearer token i osnovne podatke o korisniku.",
+                "operationId": "a3b306d14572d1f4bd6c064b3233e7b8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ana@student.rs"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Uspešna prijava",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Uspešna prijava."
+                                        },
+                                        "access_token": {
+                                            "type": "string",
+                                            "example": "1|laravel_sanctum_token"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "Bearer"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "ime": {
+                                                    "type": "string",
+                                                    "example": "Ana"
+                                                },
+                                                "prezime": {
+                                                    "type": "string",
+                                                    "example": "Jovanović"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "format": "email",
+                                                    "example": "ana@student.rs"
+                                                },
+                                                "uloga": {
+                                                    "type": "string",
+                                                    "example": "STUDENT"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Pogrešan email ili lozinka",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Pogrešan email ili lozinka."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validaciona greška",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validacija nije prošla."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "email": [
+                                                    "The email field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Odjava korisnika",
+                "operationId": "fe8f3429cd6979b3b4517e186505f9f9",
+                "responses": {
+                    "200": {
+                        "description": "Uspešna odjava"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Podaci o trenutno prijavljenom korisniku",
+                "operationId": "9d9bc556f927575aa492a88c28fe5908",
+                "responses": {
+                    "200": {
+                        "description": "Trenutni korisnik"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kalendar/rokovi": {
+            "get": {
+                "tags": [
+                    "Kalendar"
+                ],
+                "summary": "Lista rokova zadataka i državnih praznika (Nager.Date API)",
+                "operationId": "452f4fc5cdf619bbb0d3172aea0470b4",
+                "responses": {
+                    "200": {
+                        "description": "Uspešno vraćeni rokovi",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "zadatak-5"
+                                                    },
+                                                    "source": {
+                                                        "type": "string",
+                                                        "example": "internal"
+                                                    },
+                                                    "title": {
+                                                        "type": "string",
+                                                        "example": "Projektni zadatak"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Implementacija API-ja"
+                                                    },
+                                                    "start": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "end": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "all_day": {
+                                                        "type": "boolean",
+                                                        "example": false
+                                                    },
+                                                    "subject": {
+                                                        "type": "string",
+                                                        "example": "Internet tehnologije"
+                                                    },
+                                                    "subject_code": {
+                                                        "type": "string",
+                                                        "example": "ITEH"
+                                                    },
+                                                    "profesor": {
+                                                        "type": "string",
+                                                        "example": "Petar Petrović"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "external_calendar_provider": {
+                                                    "type": "string",
+                                                    "example": "nager_date_public_holidays"
+                                                },
+                                                "external_calendar_connected": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "today": {
+                                                    "properties": {
+                                                        "date": {
+                                                            "type": "string",
+                                                            "example": "2026-03-02"
+                                                        },
+                                                        "day_name": {
+                                                            "type": "string",
+                                                            "example": "ponedeljak"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Zabranjen pristup"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predaje": {
+            "get": {
+                "tags": [
+                    "Predaje"
+                ],
+                "summary": "Lista predaja. ADMIN: sve; STUDENT: moje; PROFESOR: predaje za moje predmete.",
+                "operationId": "56efb9e8f82b0e8cba6c29d135e08ed4",
+                "responses": {
+                    "200": {
+                        "description": "Lista predaja"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Predaje"
+                ],
+                "summary": "Kreiranje predaje (STUDENT). Upload fajla je opcioni (multipart/form-data).",
+                "operationId": "7dfd167aac33cfe9c1a8e621d8dca22f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "zadatak_id"
+                                ],
+                                "properties": {
+                                    "zadatak_id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "file": {
+                                        "description": "Fajl predaje (pdf/doc/docx/txt/zip, max 10MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "file_path": {
+                                        "description": "Ako se ne šalje fajl, može se proslediti postojeća putanja (opciono).",
+                                        "type": "string",
+                                        "example": "predaje/abc123.pdf",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Predaja kreirana"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije student / nije upisan)"
+                    },
+                    "409": {
+                        "description": "Već postoji predaja za ovaj zadatak"
+                    },
+                    "422": {
+                        "description": "Validaciona greška"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predaje/{id}": {
+            "get": {
+                "tags": [
+                    "Predaje"
+                ],
+                "summary": "Detalji predaje. ADMIN: sve; STUDENT: samo svoje; PROFESOR: samo za svoje predmete.",
+                "operationId": "e4a69fcfda781642446abeec0e2cdb06",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID predaje",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalji predaje"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno"
+                    },
+                    "404": {
+                        "description": "Predaja nije pronađena"
+                    },
+                    "409": {
+                        "description": "Predaja nema vezan predmet"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Predaje"
+                ],
+                "summary": "Ažuriranje predaje (PROFESOR ili ADMIN). Može menjati status/ocenu/komentar i opcionalno uploadovati novi fajl.",
+                "operationId": "9c8dce49d915a8b81161f2c9f1d8938a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID predaje",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "description": "Dozvoljene vrednosti: PREDATO, OCENJENO, VRAĆENO, ZAKAŠNJENO",
+                                        "type": "string",
+                                        "example": "OCENJENO",
+                                        "nullable": true
+                                    },
+                                    "ocena": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 9.5,
+                                        "nullable": true
+                                    },
+                                    "komentar": {
+                                        "type": "string",
+                                        "example": "Dobar rad, sitne ispravke.",
+                                        "nullable": true
+                                    },
+                                    "file": {
+                                        "description": "Novi fajl (pdf/doc/docx/txt/zip, max 10MB)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "file_path": {
+                                        "type": "string",
+                                        "example": "predaje/novi.pdf",
+                                        "nullable": true
+                                    },
+                                    "submitted_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-03-02 12:30:00",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Predaja ažurirana"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno"
+                    },
+                    "404": {
+                        "description": "Predaja nije pronađena"
+                    },
+                    "422": {
+                        "description": "Validaciona greška"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Predaje"
+                ],
+                "summary": "Brisanje predaje. STUDENT: samo svoje i ako nije OCENJENO; PROFESOR: samo za svoje predmete; ADMIN: sve.",
+                "operationId": "89e485fc4995b482a2e32c48ebc653fa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID predaje",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Predaja obrisana"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno"
+                    },
+                    "404": {
+                        "description": "Predaja nije pronađena"
+                    },
+                    "409": {
+                        "description": "Predaja je već ocenjena / nema vezan predmet"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predaje/{id}/file": {
+            "get": {
+                "tags": [
+                    "Predaje"
+                ],
+                "summary": "Preuzimanje fajla predaje. STUDENT: samo svoje; PROFESOR: samo za svoje predmete; ADMIN: sve.",
+                "operationId": "ebc799e31af3d202b1f6deb41c4fd66c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID predaje",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Fajl predaje (binary)"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno"
+                    },
+                    "404": {
+                        "description": "Predaja nema fajl ili fajl nije pronađen"
+                    },
+                    "409": {
+                        "description": "Predaja nema vezan predmet"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predaje/moje": {
+            "get": {
+                "tags": [
+                    "Predaje"
+                ],
+                "summary": "Moje predaje (STUDENT).",
+                "operationId": "4dcc274dfbc04f325bcdfc71a3852e2e",
+                "responses": {
+                    "200": {
+                        "description": "Lista mojih predaja"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predaje/za-moje-predmete": {
+            "get": {
+                "tags": [
+                    "Predaje"
+                ],
+                "summary": "Predaje za moje predmete (PROFESOR).",
+                "operationId": "88549c68e22ec584fe639e48b01c926b",
+                "responses": {
+                    "200": {
+                        "description": "Lista predaja"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predmeti": {
+            "get": {
+                "tags": [
+                    "Predmeti"
+                ],
+                "summary": "Lista predmeta (isti rezultat kao /predmeti/moji). Vraća predmete u skladu sa ulogom korisnika.",
+                "operationId": "fd051ab21246364151db6adac4499d82",
+                "responses": {
+                    "200": {
+                        "description": "Lista predmeta"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Predmeti"
+                ],
+                "summary": "Kreiranje predmeta (ADMIN). Podržava profesora preko profesor_id ili listu profesora preko profesor_ids, kao i student_ids.",
+                "operationId": "0cd16d2764a06699ae6bb3009cc74906",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "naziv",
+                                    "sifra",
+                                    "godina_studija"
+                                ],
+                                "properties": {
+                                    "naziv": {
+                                        "type": "string",
+                                        "example": "Internet tehnologije"
+                                    },
+                                    "sifra": {
+                                        "type": "string",
+                                        "example": "ITEH"
+                                    },
+                                    "godina_studija": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "profesor_id": {
+                                        "type": "integer",
+                                        "example": 5,
+                                        "nullable": true
+                                    },
+                                    "profesor_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            5,
+                                            7
+                                        ]
+                                    },
+                                    "student_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            10,
+                                            11,
+                                            12
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Predmet kreiran"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "422": {
+                        "description": "Validaciona greška"
+                    },
+                    "500": {
+                        "description": "Tabela predmet_profesor ne postoji / server greška"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predmeti/moji": {
+            "get": {
+                "tags": [
+                    "Predmeti"
+                ],
+                "summary": "Moji predmeti. STUDENT: upisani predmeti; PROFESOR: predmeti koje predaje; ADMIN: svi predmeti.",
+                "operationId": "1651876fc1ce1e3073415ad13d70ce06",
+                "responses": {
+                    "200": {
+                        "description": "Lista predmeta"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predmeti/{id}": {
+            "get": {
+                "tags": [
+                    "Predmeti"
+                ],
+                "summary": "Detalji predmeta. ADMIN: može sve. STUDENT: samo ako je upisan. PROFESOR: samo ako predaje predmet.",
+                "operationId": "3b01f0f7d1d0d6553fbbbcd6dffcf930",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID predmeta",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalji predmeta"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno"
+                    },
+                    "404": {
+                        "description": "Predmet nije pronađen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Predmeti"
+                ],
+                "summary": "Izmena predmeta (ADMIN). Može menjati naziv/sifra/godina_studija, profesore i studente.",
+                "operationId": "67ac3fca2ca793921afcefa048abaee3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID predmeta",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "naziv": {
+                                        "type": "string",
+                                        "example": "Internet tehnologije"
+                                    },
+                                    "sifra": {
+                                        "type": "string",
+                                        "example": "ITEH"
+                                    },
+                                    "godina_studija": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "profesor_id": {
+                                        "type": "integer",
+                                        "example": 5,
+                                        "nullable": true
+                                    },
+                                    "profesor_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            5,
+                                            7
+                                        ]
+                                    },
+                                    "student_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "example": [
+                                            10,
+                                            11,
+                                            12
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Predmet ažuriran"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "404": {
+                        "description": "Predmet nije pronađen"
+                    },
+                    "422": {
+                        "description": "Validaciona greška"
+                    },
+                    "500": {
+                        "description": "Tabela predmet_profesor ne postoji / server greška"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Predmeti"
+                ],
+                "summary": "Brisanje predmeta (ADMIN).",
+                "operationId": "2813f75779caedbd5a2b352b96e19613",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID predmeta",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Predmet obrisan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Predmet je obrisan."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "404": {
+                        "description": "Predmet nije pronađen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/provere-plagijata": {
+            "get": {
+                "tags": [
+                    "Provere plagijata"
+                ],
+                "summary": "Lista provera plagijata za predaje na predmetima profesora (samo PROFESOR)",
+                "operationId": "2836b0c5bd3fbdb84580b4142fe666ce",
+                "responses": {
+                    "200": {
+                        "description": "Uspešno vraćena lista provera"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije PROFESOR)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Provere plagijata"
+                ],
+                "summary": "Nije dozvoljeno (403)",
+                "operationId": "c75a6cbee48f42202237f1d29b7ba904",
+                "responses": {
+                    "403": {
+                        "description": "Zabranjeno"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/provere-plagijata/{id}": {
+            "get": {
+                "tags": [
+                    "Provere plagijata"
+                ],
+                "summary": "Detalji provere plagijata (samo PROFESOR i samo za svoje predmete)",
+                "operationId": "460cf605f5010e4a761e96bfe66b2825",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID provere plagijata",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 5
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno vraćena provera"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije PROFESOR ili nije njegov predmet)"
+                    },
+                    "404": {
+                        "description": "Provera nije pronađena"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Provere plagijata"
+                ],
+                "summary": "Nije dozvoljeno (403)",
+                "operationId": "092918d64cc30d3e2f5e7c97aa891f0f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 5
+                    }
+                ],
+                "responses": {
+                    "403": {
+                        "description": "Zabranjeno"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Provere plagijata"
+                ],
+                "summary": "Nije dozvoljeno (403)",
+                "operationId": "af6d2f9c45178fec72ec4268caca5051",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 5
+                    }
+                ],
+                "responses": {
+                    "403": {
+                        "description": "Zabranjeno"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/predaje/{predajaId}/provera-plagijata": {
+            "post": {
+                "tags": [
+                    "Provere plagijata"
+                ],
+                "summary": "Pokretanje provere plagijata za predaju (samo PROFESOR i samo za svoje predmete)",
+                "operationId": "d455cbfc4ff7fd38c1ffe57d22bb1e3a",
+                "parameters": [
+                    {
+                        "name": "predajaId",
+                        "in": "path",
+                        "description": "ID predaje",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 12
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Provera već postoji (vraća postojeći rezultat)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "predaja_id": {
+                                            "type": "integer",
+                                            "example": 12
+                                        },
+                                        "procenat_slicnosti": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 23.5
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ZAVRSENO"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "201": {
+                        "description": "Provera uspešno kreirana",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "predaja_id": {
+                                            "type": "integer",
+                                            "example": 12
+                                        },
+                                        "procenat_slicnosti": {
+                                            "type": "number",
+                                            "format": "float",
+                                            "example": 12
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ZAVRSENO"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije PROFESOR ili nije njegov predmet)"
+                    },
+                    "404": {
+                        "description": "Predaja nije pronađena"
+                    },
+                    "500": {
+                        "description": "Plagiarism API nije konfigurisan"
+                    },
+                    "502": {
+                        "description": "Greška pri komunikaciji sa eksternim API-jem / nevažeći odgovor"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/upisi": {
+            "get": {
+                "tags": [
+                    "Upisi"
+                ],
+                "summary": "Lista upisa (samo ADMIN)",
+                "operationId": "c699ba98f894d0c5984ccd23511bbb0b",
+                "responses": {
+                    "200": {
+                        "description": "Uspešno vraćena lista upisa",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "student_id": {
+                                                "type": "integer",
+                                                "example": 7
+                                            },
+                                            "predmet_id": {
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "student": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 7
+                                                    },
+                                                    "ime": {
+                                                        "type": "string",
+                                                        "example": "Ana"
+                                                    },
+                                                    "prezime": {
+                                                        "type": "string",
+                                                        "example": "Jovanović"
+                                                    },
+                                                    "email": {
+                                                        "type": "string",
+                                                        "format": "email",
+                                                        "example": "ana@student.rs"
+                                                    },
+                                                    "uloga": {
+                                                        "type": "string",
+                                                        "example": "STUDENT"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "predmet": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "naziv": {
+                                                        "type": "string",
+                                                        "example": "Internet tehnologije"
+                                                    },
+                                                    "sifra": {
+                                                        "type": "string",
+                                                        "example": "ITEH"
+                                                    },
+                                                    "godina_studija": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Upisi"
+                ],
+                "summary": "Kreiranje upisa (samo ADMIN)",
+                "operationId": "0660249867a73465d331c7915b6da2c6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "student_id",
+                                    "predmet_id"
+                                ],
+                                "properties": {
+                                    "student_id": {
+                                        "type": "integer",
+                                        "example": 7
+                                    },
+                                    "predmet_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Upis uspešno kreiran"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "422": {
+                        "description": "Validaciona greška",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validacija nije prošla."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "student_id": [
+                                                    "The student id field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/upisi/{id}": {
+            "get": {
+                "tags": [
+                    "Upisi"
+                ],
+                "summary": "Detalji upisa (samo ADMIN)",
+                "operationId": "5da3ca87983822e71d88f09f7588b3dd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID upisa",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno vraćen upis"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "404": {
+                        "description": "Upis nije pronađen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Upisi"
+                ],
+                "summary": "Izmena upisa (samo ADMIN)",
+                "operationId": "a1b78e40b5899976319034e8e437c524",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID upisa",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "student_id": {
+                                        "type": "integer",
+                                        "example": 7
+                                    },
+                                    "predmet_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Upis uspešno izmenjen"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "404": {
+                        "description": "Upis nije pronađen"
+                    },
+                    "422": {
+                        "description": "Validaciona greška",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validacija nije prošla."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "predmet_id": [
+                                                    "The selected predmet id is invalid."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Upisi"
+                ],
+                "summary": "Brisanje upisa (samo ADMIN)",
+                "operationId": "17d74eac7e6fd8722c11b02f2b4f4ad4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID upisa",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Upis uspešno obrisan"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "404": {
+                        "description": "Upis nije pronađen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Lista korisnika (samo ADMIN). Opcioni filter po ulozi.",
+                "operationId": "c457726701591d1183b53aa71fc13441",
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "description": "Filter po ulozi korisnika",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "STUDENT",
+                                "PROFESOR",
+                                "ADMIN"
+                            ]
+                        },
+                        "example": "STUDENT"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Uspešno vraćena lista korisnika",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "ime": {
+                                                "type": "string",
+                                                "example": "Ana"
+                                            },
+                                            "prezime": {
+                                                "type": "string",
+                                                "example": "Jovanović"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email",
+                                                "example": "ana@student.rs"
+                                            },
+                                            "uloga": {
+                                                "type": "string",
+                                                "example": "STUDENT"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "422": {
+                        "description": "Validaciona greška (neispravan role parametar)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validacija nije prošla."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "role": [
+                                                    "The selected role is invalid."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/zadaci": {
+            "get": {
+                "tags": [
+                    "Zadaci"
+                ],
+                "summary": "Lista zadataka dostupnih ulogovanom korisniku (ADMIN: svi, STUDENT: za upisane predmete, PROFESOR: njegovi zadaci)",
+                "operationId": "9d6f49b88a357c35f037d9f1d21d1b03",
+                "responses": {
+                    "200": {
+                        "description": "Lista zadataka"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Zadaci"
+                ],
+                "summary": "Kreiranje zadatka (PROFESOR/ADMIN). Profesor može kreirati samo za predmet koji predaje.",
+                "operationId": "c050cc8c27718ee1a39622d74beb7f9e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "predmet_id",
+                                    "naslov",
+                                    "rok_predaje"
+                                ],
+                                "properties": {
+                                    "predmet_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "naslov": {
+                                        "type": "string",
+                                        "example": "Seminarski rad - I faza"
+                                    },
+                                    "opis": {
+                                        "type": "string",
+                                        "example": "Uraditi ER dijagram i opis poslovnih pravila.",
+                                        "nullable": true
+                                    },
+                                    "rok_predaje": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-03-20 23:59:00"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Zadatak uspešno kreiran"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno"
+                    },
+                    "422": {
+                        "description": "Validaciona greška"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/zadaci/{id}": {
+            "get": {
+                "tags": [
+                    "Zadaci"
+                ],
+                "summary": "Detalji zadatka (ADMIN: bilo koji, STUDENT: samo za upisani predmet, PROFESOR: samo svoj zadatak)",
+                "operationId": "1d0937b62673460777ffed4821b9de12",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID zadatka",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 10
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalji zadatka"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno"
+                    },
+                    "404": {
+                        "description": "Zadatak nije pronađen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Zadaci"
+                ],
+                "summary": "Ažuriranje zadatka (PROFESOR/ADMIN). Profesor može menjati samo svoj zadatak; ako menja predmet_id, mora biti predmet koji predaje.",
+                "operationId": "ae554b9cfa49ad2d13ff06125dcd544a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID zadatka",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 10
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "predmet_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "naslov": {
+                                        "type": "string",
+                                        "example": "Seminarski rad - I faza (izmena)"
+                                    },
+                                    "opis": {
+                                        "type": "string",
+                                        "example": "Dodati i BPMN dijagram.",
+                                        "nullable": true
+                                    },
+                                    "rok_predaje": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2026-03-22 23:59:00"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Zadatak uspešno ažuriran"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno"
+                    },
+                    "404": {
+                        "description": "Zadatak nije pronađen"
+                    },
+                    "422": {
+                        "description": "Validaciona greška"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Zadaci"
+                ],
+                "summary": "Brisanje zadatka (samo ADMIN)",
+                "operationId": "0cf9b9a5586999f9ca3c2855de39aee9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID zadatka",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "example": 10
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Zadatak uspešno obrisan"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    },
+                    "403": {
+                        "description": "Zabranjeno (nije ADMIN)"
+                    },
+                    "404": {
+                        "description": "Zadatak nije pronađen"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/zadaci/moji": {
+            "get": {
+                "tags": [
+                    "Zadaci"
+                ],
+                "summary": "Moji zadaci (ADMIN: svi, STUDENT: za upisane predmete, PROFESOR: njegovi zadaci)",
+                "operationId": "0544702460c770c956dbc60d0119c6a2",
+                "responses": {
+                    "200": {
+                        "description": "Lista zadataka"
+                    },
+                    "401": {
+                        "description": "Neautorizovan pristup"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Kalendar",
+            "description": "Kalendar"
+        },
+        {
+            "name": "Predaje",
+            "description": "Predaje"
+        },
+        {
+            "name": "Predmeti",
+            "description": "Predmeti"
+        },
+        {
+            "name": "Provere plagijata",
+            "description": "Provere plagijata"
+        },
+        {
+            "name": "Upisi",
+            "description": "Upisi"
+        },
+        {
+            "name": "Users",
+            "description": "Users"
+        },
+        {
+            "name": "Zadaci",
+            "description": "Zadaci"
+        }
+    ]
+}

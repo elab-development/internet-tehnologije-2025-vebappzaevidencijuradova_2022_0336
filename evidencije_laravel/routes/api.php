@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PredmetController;
@@ -19,7 +18,8 @@ Route::controller(AuthController::class)->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/me', fn (Request $request) => response()->json($request->user())); 
+    Route::get('/me', [AuthController::class, 'me']);
+    //Route::get('/me', fn (Request $request) => response()->json($request->user())); 
     Route::post('/logout', [AuthController::class, 'logout']); 
 
     Route::get('/users', [UserController::class, 'index']); 
@@ -38,7 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/zadaci/{id}', [ZadatakController::class, 'show']);
 
     Route::get('/predaje', [PredajaController::class, 'index']);
-    Route::get('/predaje/export/csv', [PredajaController::class, 'exportCsv']);
     Route::get('/predaje/{id}/file', [PredajaController::class, 'file']);
     Route::get('/predaje/{id}', [PredajaController::class, 'show']);
 
