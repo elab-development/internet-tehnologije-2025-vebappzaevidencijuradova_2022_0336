@@ -1,5 +1,9 @@
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+
+function navLinkClass({ isActive }) {
+  return `navbar-link ${isActive ? "navbar-link-active" : ""}`.trim();
+}
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -16,40 +20,27 @@ export default function Navbar() {
   const isAdmin = user?.uloga === "ADMIN";
 
   return (
-    <div
-      style={{
-        padding: 12,
-        borderBottom: "1px solid #ddd",
-        display: "flex",
-        gap: 12,
-        alignItems: "center",
-      }}
-    >
-      <Link to="/">Početna</Link>
+     <div className="navbar">
+      <NavLink to="/" end className={navLinkClass}>
+        Početna
+      </NavLink>
 
       {user && (
         <>
-          <Link to="/predmeti">
+          <NavLink to="/predmeti" className={navLinkClass}>
             {isAdmin ? "Predmeti" : "Moji predmeti"}
-          </Link>
+          </NavLink>
 
-          <Link to="/zadaci">
+          <NavLink to="/zadaci" className={navLinkClass}>
             {isAdmin ? "Zadaci" : "Moji zadaci"}
-          </Link>
+          </NavLink>
 
-          <Link to="/predaje">
+          <NavLink to="/predaje" className={navLinkClass}>
             {isAdmin ? "Predaje" : "Moje predaje"}
-          </Link>
+          </NavLink>
 
-          <div
-            style={{
-              marginLeft: "auto",
-              display: "flex",
-              gap: 12,
-              alignItems: "center",
-            }}
-          >
-            <span>
+          <div className="navbar-user">
+            <span className="navbar-user-label">
               {user.ime} ({user.uloga})
             </span>
 
